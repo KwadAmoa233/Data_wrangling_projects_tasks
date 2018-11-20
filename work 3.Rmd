@@ -1,0 +1,257 @@
+---
+title: "Data Wrangling"
+author: "Kwadwo Amoako"
+date: "November 6, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+loading tidyverse package
+
+```{r}
+library(tidyverse)
+```
+1. loading table 2
+
+```{r}
+df1 <- table2
+```
+spreading the rows into columns to get the number of TB cases per country per year
+
+```{r}
+df2 <- table2 %>% spread(type,count,fill = NA,convert = FALSE,drop = TRUE,sep = NULL)
+```
+Dividing cases by population and multiplying by 10000
+
+```{r}
+df2 %>% mutate(rate=(cases/population)*10000)
+```
+loading table 4a 
+```{r}
+table4a
+df4a <- table4a%>%gather(`1999`,`2000`,key="year",value="cases")
+
+```
+loading table 4b
+```{r}
+table4b
+df4b <- table4b%>%gather(`1999`,`2000`,key="year",value="population")
+```
+
+
+merging tables 4a and 4b
+```{r}
+df4ab <- merge(df4a,df4b,all = TRUE)
+```
+calculating the rates for table 4a+4b
+```{r}
+df4ab %>% mutate(rate=cases/population*10000)
+```
+
+2. The code fails because it has integers(1999 and 2000) as column names and therefore there should be backticks on them for R to recognize them as characters.
+
+3. 
+```{r}
+library(nycflights13)
+```
+MAking a consistent date format within the data
+```{r}
+library(lubridate)
+make_datetime_100 <- function(year, month, day, time) {
+  make_datetime(year, month, day, time %/% 100, time %% 100)
+}
+```
+applying the correct dates to the needed columns
+```{r}
+flights_2 <- flights %>%
+  filter(!is.na(dep_time), !is.na(arr_time)) %>%
+  mutate(
+    dep_time = make_datetime_100(year, month, day, dep_time),
+    arr_time = make_datetime_100(year, month, day, arr_time),
+    sched_dep_time = make_datetime_100(year, month, day, sched_dep_time),
+    sched_arr_time = make_datetime_100(year, month, day, sched_arr_time)
+  ) %>%
+  select(origin, dest, ends_with("delay"), ends_with("time"))
+```
+a.	Checking how the distribution of flights times within a day change over the course of the year
+```{r}
+flights_2 %>%
+  mutate(time = hour(dep_time) * 100 + minute(dep_time),
+         mon = as.factor(month
+                         (dep_time))) %>%
+  ggplot(aes(x = time, y = ..density.., group = mon, colour = mon)) +
+  geom_freqpoly(binwidth = 100)
+```
+There is not much difference in flights times within-day distribution over the year
+
+3b.Comparing dep_time,sched_dep_time, and dep_delay for consistentenct
+```{r}
+flights_2 %>%
+  mutate(dep_time_ = sched_dep_time + dep_delay * 60) %>%
+  filter(dep_time_ != dep_time) %>%
+  select(dep_time_, dep_time, sched_dep_time, dep_delay)
+```
+
+There are some inconsistencies in the the dates. There are flights with departure time on the next day relative to the scheduled departure time. I should have coded in a way that would check if the actual departure time was less than the scheduled departure time.
+
+3c.	Confirming if early departures of flights in minutes 20-30 and 50-60 were caused by scheduled flights that left early.
+```{r}
+flights_2 %>%
+  mutate(early = dep_delay < 0,
+         minute = minute(sched_dep_time) %% 10) %>%
+  group_by(minute) %>%
+  summarise(early = mean(early)) %>%
+  ggplot(aes(x = minute, y = early)) +
+  geom_point()
+```
+Plotting with 10 minute time intervals reveals a higher proportion of early flights during minutes 20-30 and 50-60. 
+
+4.Scraping dartmouth website for useful information
+```{r}
+library(rvest)
+scraping_geisel <-  read_html("https://geiselmed.dartmouth.edu/qbs")
+head(scraping_geisel)
+```
+
+#viewing the largest heading on the webpage
+```{r}
+h1_text <- scraping_geisel %>% html_nodes("h1") %>%html_text()
+h1_text
+```
+
+#viewing the second largest heading on the webpage
+```{r}
+h2_text <- scraping_geisel %>% html_nodes("h2") %>%html_text()
+h2_text
+```
+
+#Checking the length of the second largest heading
+```{r}
+length(h2_text)
+```
+
+#Viewing the third largest heading on the webpage
+```{r}
+h3_text <- scraping_geisel %>% html_nodes("h3") %>%html_text()
+h3_text
+```
+
+#Viewing the fourth largest heading on the webpage
+```{r}
+h4_text <- scraping_geisel %>% html_nodes("h4") %>%html_text()
+h4_text
+```
+
+#viewing the paragraph elements
+```{r}
+p_nodes <- scraping_geisel %>%html_nodes("p")
+p_nodes
+```
+
+#viewing only the first six paragraphs
+```{r}
+p_nodes[1:6]
+```
+
+#viewing the text in the paragraph
+```{r}
+p_text <- scraping_geisel %>% html_nodes("p") %>%html_text()
+p_text
+```
+
+#checking the number of paragrapghs on the webpage
+```{r}
+length(p_text)
+```
+
+#viewing the unordered bulleted list on the webpage
+```{r}
+ul_text <- scraping_geisel %>% html_nodes("ul") %>%html_text()
+```
+
+#checking the number of unordered bulletin on the webpage
+```{r}
+length(ul_text)
+```
+
+#viewing the first unordered bulleted list
+```{r}
+ul_text[1]
+```
+#
+```{r}
+substr(ul_text[2],start=5,stop=14)
+```
+
+#viewing individual list item
+```{r}
+li_text <- scraping_geisel %>% html_nodes("li") %>%html_text()
+li_text
+```
+
+#checking the number of individual list items
+```{r}
+length(li_text)
+```
+
+#viewing the first 8 individual list items
+```{r}
+li_text[1:8]
+lii_text <- scraping_geisel %>% html_nodes("lii") %>%html_text()
+```
+
+#
+```{r}
+table_text<-scraping_geisel %>% html_nodes("table") %>%html_text()
+table_text
+```
+
+# viewing all text irrespecive of headings, paragrpahs, lists, ordered list etc..
+```{r}
+all_text <- scraping_geisel %>%
+  html_nodes("div") %>% 
+  html_text()
+p_text
+clean_text <- scraping_geisel %>% html_nodes("mw-body") %>%html_text()
+clean_text
+
+body_text <- scraping_geisel %>%
+  html_nodes("#mw-content-text") %>% 
+  html_text()
+
+substr(body_text, start = 1, stop = 10)
+```
+
+# Scraping a specific heading
+```{r}
+scraping_geisel %>%
+  html_nodes("#Graduate program in Quantitative Biomedical Sciences") %>% 
+  html_text()
+```
+
+# Scraping a specific paragraph
+```{r}
+scraping_geisel %>%
+  html_nodes("#MS Programs in Health Data Science or Epidemiology") %>% 
+  html_text()
+```
+
+# Scraping a specific list
+```{r}
+scraping_geisel %>%
+  html_nodes("#QBS-RIPS") %>% 
+  html_text()
+```
+
+# Scraping a specific reference list item
+```{r}
+scraping_geisel %>%
+  html_nodes("#cite_note-22") %>% 
+  html_text()
+```
+
+
+
+
