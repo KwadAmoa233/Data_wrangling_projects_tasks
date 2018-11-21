@@ -1,0 +1,188 @@
+---
+title: "Data Wrangling Midterm"
+author: "KWADWO AMOAKO"
+date: "October 26, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+loading and looking at the first few rows of my data
+```{r}
+library(foreign)
+data=read.xport(file.choose())
+```
+Viewing the first few rows of my data
+```{r, eval=FALSE}
+head(data)
+attach(data)
+```
+
+
+renaming my columns
+```{r, echo=FALSE}
+colnames(data)[colnames(data)=="SEQN"] <- "ID"
+colnames(data)[colnames(data)=="DIQ010"] <- "diabetes_status"
+colnames(data)[colnames(data)=="DID040"] <- "diabetes_age"
+colnames(data)[colnames(data)=="DIQ160"] <- "Prediabetes_knowlegde"
+colnames(data)[colnames(data)=="DIQ170"] <- "health_risk_knowledge"
+colnames(data)[colnames(data)=="DIQ172"] <- "risk_awareness"
+colnames(data)[colnames(data)=="DIQ175A"] <- "family_history"
+colnames(data)[colnames(data)=="DIQ175B"] <- "overweight"
+colnames(data)[colnames(data)=="DIQ175C"] <- "age"
+colnames(data)[colnames(data)=="DIQ175D"] <- "poor_diet"
+colnames(data)[colnames(data)=="DIQ175E"] <- "race_risk"
+colnames(data)[colnames(data)=="DIQ175F"] <- "babyweight_risk"
+colnames(data)[colnames(data)=="DIQ175G"] <- "physical_activity"
+colnames(data)[colnames(data)=="DIQ175H"] <- "high_blood_pressure"
+colnames(data)[colnames(data)=="DIQ175I"] <- "high_blood_sugar"
+colnames(data)[colnames(data)=="DIQ175J"] <- "high_cholestrol"
+colnames(data)[colnames(data)=="DIQ175K"] <- "hypoglycemic"
+colnames(data)[colnames(data)=="DIQ175L"] <- "extreme_hunger"
+colnames(data)[colnames(data)=="DIQ175M"] <- "numbness"
+colnames(data)[colnames(data)=="DIQ175N"] <- "blurred_vision"
+colnames(data)[colnames(data)=="DIQ175O"] <- "increased_fatigue"
+colnames(data)[colnames(data)=="DIQ175P"] <- "anyone_at_risk"
+colnames(data)[colnames(data)=="DIQ175Q"] <- "doctor_warning"
+colnames(data)[colnames(data)=="DIQ175R"] <- "other_risk"
+colnames(data)[colnames(data)=="DIQ175S"] <- "gestational_diabetes"
+colnames(data)[colnames(data)=="DIQ175T"] <- "frequent_urination"
+colnames(data)[colnames(data)=="DIQ175U"] <- "thirst"
+colnames(data)[colnames(data)=="DIQ175V"] <- "sugar_craving"
+colnames(data)[colnames(data)=="DIQ175W"] <- "medication"
+colnames(data)[colnames(data)=="DIQ175X"] <- "polycystic_ovarian_syndrome"
+colnames(data)[colnames(data)=="DIQ180"] <- "blood_test_in_3yrs"
+colnames(data)[colnames(data)=="DIQ050"] <- "current_insulin_intake"
+colnames(data)[colnames(data)=="DID060"] <- "years_of_insulin_intake"
+colnames(data)[colnames(data)=="DIQ060U"] <- "insulin_unit_measure"
+colnames(data)[colnames(data)=="DIQ070"] <- "taking_diabeteic_pills"
+colnames(data)[colnames(data)=="DIQ230"] <- "time_to_specialist"
+colnames(data)[colnames(data)=="DIQ240"] <- "doc_for_diabetes"
+colnames(data)[colnames(data)=="DID250"] <- "pastyear_doc_visit"
+colnames(data)[colnames(data)=="DID260"] <- "glucose_check"
+colnames(data)[colnames(data)=="DIQ260U"] <- "glucose_unit_measure"
+colnames(data)[colnames(data)=="DIQ275"] <- "pastyear_doc_check"
+colnames(data)[colnames(data)=="DIQ280"] <- "last_A1C_level"
+colnames(data)[colnames(data)=="DIQ291"] <- "A1C_required"
+colnames(data)[colnames(data)=="DIQ300S"] <- "recent_SBP"
+colnames(data)[colnames(data)=="DIQ300D"] <- "recent_DBP"
+colnames(data)[colnames(data)=="DID310S"] <- "SBP_required"
+colnames(data)[colnames(data)=="DID310D"] <- "DBP_required"
+colnames(data)[colnames(data)=="DID320"] <- "recent_LDL_number"
+colnames(data)[colnames(data)=="DID330"] <- "LDL_required"
+colnames(data)[colnames(data)=="DID341"] <- "pastyear_dr_feetcheck"
+colnames(data)[colnames(data)=="DID350"] <- "feet_check"
+colnames(data)[colnames(data)=="DIQ350U"] <- "sore_unit_measure"
+colnames(data)[colnames(data)=="DIQ360"] <- "dilated_pupils"
+colnames(data)[colnames(data)=="DIQ080"] <- "retinopathy"
+```
+verifying if columns names changed
+
+```{r}
+
+head(data)
+```
+
+converting some of the categorical variables into factors 
+```{r, eval=FALSE}
+as.factor(retinopathy)
+as.factor(dilated_pupils)
+as.factor(sore_unit_measure)
+as.factor(feet_check)
+as.factor(pastyear_doc_check)
+as.factor(LDL_required)
+as.factor(recent_LDL_number)
+as.factor(DBP_required)
+as.factor(SBP_required)
+as.factor(recent_DBP)
+as.factor(recent_SBP)
+as.factor(A1C_required)
+as.numeric(last_A1C_level)
+as.factor(pastyear_doc_check)
+as.factor(glucose_unit_measure)
+as.factor(pastyear_doc_visit)
+as.factor(doc_for_diabetes)
+as.factor(time_to_specialist)
+as.factor(taking_diabeteic_pills)
+as.factor(current_insulin_intake)
+as.factor(blood_test_in_3yrs)
+as.factor(risk_awareness)
+as.factor(health_risk_knowledge)
+as.factor(Prediabetes_knowlegde)
+as.factor(diabetes_status)
+```
+verifying counts for diabetes status
+```{r}
+data.frame(table(data$diabetes_status))
+```
+
+verifying counts for current insulin intake
+```{r}
+data.frame(table(data$current_insulin_intake))
+```
+verifyng counts for risk awareness
+```{r}
+data.frame(table(data$risk_awareness))
+```
+verifying counts for time to specialist
+```{r}
+data.frame(table(data$time_to_specialist))
+```
+verifying counts for health risk knowledge
+```{r}
+data.frame(table(data$health_risk_knowledge))
+```
+changing how the levels were coded for some categorical variables
+
+1. prediabetes knowledge
+```{r}
+data$Prediabetes_knowlegde <- as.factor(data$Prediabetes_knowlegde)
+levels(data$Prediabetes_knowlegde) <- list("Yes"=1,"No"=2,"Refused"=3,"Dont Know"=9)
+data.frame(table(data$Prediabetes_knowlegde))
+```
+2.for diabetes status 
+```{r}
+data$diabetes_status<- as.factor(data$diabetes_status)
+levels(data$diabetes_status) <- list("Yes"=1,"No"=2,"Border line"=3, "Refused"=7,"Dont Know"=9)
+data.frame(table(data$diabetes_status))
+```
+3. for retinopathy
+```{r}
+data$retinopathy <- as.factor(data$retinopathy)
+levels(data$retinopathy) <- list("Yes"=1,"No"=2,"Refused"=7,"Dont Know"=9)
+data.frame(table(data$retinopathy))
+```
+4. past year doctor check
+```{r}
+data$pastyear_doc_check <- as.factor(data$pastyear_doc_check)
+levels(data$pastyear_doc_check) <- list("Yes"=1,"No"=2,"Refused"=7,"Dont Know"=9)
+data.frame(table(data$pastyear_doc_check))
+```
+5 doc for diabetes
+```{r}
+data$doc_for_diabetes <- as.factor(data$doc_for_diabetes)
+levels(data$doc_for_diabetes) <- list("Yes"=1,"No"=2,"Refused"=7,"Dont Know"=9)
+data.frame(table(data$doc_for_diabetes))
+```
+6 taking diabetic pills
+```{r}
+data$taking_diabeteic_pills <- as.factor(data$taking_diabeteic_pills)
+levels(data$taking_diabeteic_pills) <- list("Yes"=1,"No"=2,"Refused"=7,"Dont Know"=9)
+data.frame(table(data$taking_diabeteic_pills))
+```
+7. taking insuline
+```{r}
+data$current_insulin_intake <- as.factor(data$current_insulin_intake)
+levels(data$current_insulin_intake) <- list("Yes"=1,"No"=2,"Refused"=7,"Dont Know"=9)
+data.frame(table(data$current_insulin_intake))
+```
+8. blood test in 3 years
+```{r}
+data$blood_test_in_3yrs <- as.factor(data$blood_test_in_3yrs)
+levels(data$blood_test_in_3yrs) <- list("Yes"=1,"No"=2,"Refused"=7,"Dont Know"=9)
+data.frame(table(data$blood_test_in_3yrs))
+```
+
+
